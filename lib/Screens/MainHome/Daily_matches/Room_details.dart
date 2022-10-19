@@ -42,6 +42,28 @@ class _room_DetailsState extends State<room_Details> {
     } else {
       print("post have no Data${response.body}");
     }
+  }  Future slide2;
+
+  Future emergency2() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token');
+
+    Map<String, String> requestHeaders = {
+      'Accept': 'application/json',
+      'authorization': "Bearer $token"
+    };
+
+    var response = await http.get(Uri.parse(AppUrl.withou_gamedetails + widget.id),
+        headers: requestHeaders);
+    if (response.statusCode == 200) {
+      print('Get post collected' + response.body);
+      var userData1 = jsonDecode(response.body)['data1'];
+      print(userData1);
+
+      return userData1;
+    } else {
+      print("post have no Data${response.body}");
+    }
   }
   var msg;
   @override
@@ -49,13 +71,14 @@ class _room_DetailsState extends State<room_Details> {
     // TODO: implement initState
     super.initState();
     slide=emergency();
+    slide2=emergency2();
   }
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: Color(0xFF07031E),
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(child:
       Container(
           constraints: BoxConstraints(),
@@ -83,10 +106,10 @@ class _room_DetailsState extends State<room_Details> {
                             children: [
                               Container(
                                   height: height/2.5,
-                                  child: Image.asset('Images/frr.jpg')),
+                                  child: Image.asset('Images/dety.jpeg')),
                               Text(snapshot.data[0]['type']+" | "+snapshot.data[0]['control_type']+' | '+snapshot.data[0]['game_id'],
                                   style: GoogleFonts.lato(
-                                    color: Colors.white,
+                                    color: Colors.black,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,)),
                               Container(
@@ -101,11 +124,11 @@ class _room_DetailsState extends State<room_Details> {
                                             height: height/30,
                                             decoration: BoxDecoration(
                                                 borderRadius: BorderRadius.circular(20),
-                                                color: Colors.white
+                                                color: Colors.blue
                                             ),                          child: Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            Text("Type :",style: TextStyle(color: Colors.grey,fontWeight: FontWeight.bold,),),
+                                            Text("Type :",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,),),
                                             Text(snapshot.data[0]['type'],style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,),),
                                           ],
                                         )
@@ -120,11 +143,11 @@ class _room_DetailsState extends State<room_Details> {
                                             height: height/30,
                                             decoration: BoxDecoration(
                                                 borderRadius: BorderRadius.circular(20),
-                                                color: Colors.white
+                                                color: Colors.blue
                                             ),                          child: Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            Text("Version :",style: TextStyle(color: Colors.grey,fontWeight: FontWeight.bold,),),
+                                            Text("Version :",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,),),
                                             Text(snapshot.data[0]['version'],style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,),),
                                           ],
                                         )
@@ -139,11 +162,11 @@ class _room_DetailsState extends State<room_Details> {
                                             height: height/30,
                                             decoration: BoxDecoration(
                                                 borderRadius: BorderRadius.circular(20),
-                                                color: Colors.white
+                                                color: Colors.blue
                                             ),                          child: Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            Text("Map :",style: TextStyle(color: Colors.grey,fontWeight: FontWeight.bold,),),
+                                            Text("Map :",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,),),
                                             Text(snapshot.data[0]['map'],style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,),),
                                           ],
                                         )
@@ -166,11 +189,11 @@ class _room_DetailsState extends State<room_Details> {
                                             height: height/30,
                                             decoration: BoxDecoration(
                                                 borderRadius: BorderRadius.circular(20),
-                                                color: Colors.white
+                                                color: Colors.blue
                                             ),                          child: Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            Text("Match Type :",style: TextStyle(color: Colors.grey,fontWeight: FontWeight.bold,),),
+                                            Text("Match Type :",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,),),
                                             Text("Paid",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,),),
                                           ],
                                         )
@@ -185,12 +208,18 @@ class _room_DetailsState extends State<room_Details> {
                                             height: height/30,
                                             decoration: BoxDecoration(
                                                 borderRadius: BorderRadius.circular(20),
-                                                color: Colors.white
+                                                color: Colors.blue
                                             ),                          child: Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            Text("Entry Fee :",style: TextStyle(color: Colors.grey,fontWeight: FontWeight.bold,),),
-                                            Text("৳ "+snapshot.data[0]['entry_fee'],style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,),),
+                                            Text("Entry Fee :",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,),),
+                                            Row(                                                                      mainAxisAlignment:MainAxisAlignment.center,
+
+                                              children: [                                                                        Image.asset('Images/t.png',height: 25,width: 25,),
+
+                                                Text("  "+snapshot.data[0]['entry_fee'],style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,),),
+                                              ],
+                                            ),
                                           ],
                                         )
 
@@ -217,7 +246,7 @@ class _room_DetailsState extends State<room_Details> {
                                           ),                          child: Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            Text("Time :",style: TextStyle(color: Colors.grey,fontWeight: FontWeight.bold,),),
+                                            Text("Time :",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,),),
                                             Text(snapshot.data[0]['date'],style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,),),
                                           ],
                                         ),
@@ -231,7 +260,7 @@ class _room_DetailsState extends State<room_Details> {
                               ),
                               Text('Prize Details',
                                   style: GoogleFonts.lato(
-                                    color: Colors.white,
+                                    color: Colors.black,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,)),
                               Container(
@@ -246,12 +275,18 @@ class _room_DetailsState extends State<room_Details> {
                                           height: height/30,
                                           decoration: BoxDecoration(
                                               borderRadius: BorderRadius.circular(20),
-                                              color: Colors.white
+                                              color: Colors.blue
                                           ),                          child: Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            Text("Winner :",style: TextStyle(color: Colors.grey,fontWeight: FontWeight.bold,),),
-                                            Text("৳ " + snapshot.data[0]['total_prize'],style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,),),
+                                            Text("Winner :",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,),),
+                                            Row(                                                                      mainAxisAlignment:MainAxisAlignment.center,
+
+                                              children: [                                                                        Image.asset('Images/t.png',height: 25,width: 25,),
+
+                                                Text("   " + snapshot.data[0]['total_prize'],style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,),),
+                                              ],
+                                            ),
                                           ],
                                         ),
 
@@ -266,12 +301,18 @@ class _room_DetailsState extends State<room_Details> {
                                           height: height/30,
                                           decoration: BoxDecoration(
                                               borderRadius: BorderRadius.circular(20),
-                                              color: Colors.white
+                                              color: Colors.blue
                                           ),                          child: Row(
                                           mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
-                                            Text("Per Kill :",style: TextStyle(color: Colors.grey,fontWeight: FontWeight.bold,),),
-                                            Text("৳ "+ snapshot.data[0]['per_kill'],style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,),),
+                                            Text("Per Kill :",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,),),
+                                            Row(                                                                      mainAxisAlignment:MainAxisAlignment.center,
+
+                                              children: [                                                                        Image.asset('Images/t.png',height: 25,width: 25,),
+
+                                                Text("  "+ snapshot.data[0]['per_kill'],style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,),),
+                                              ],
+                                            ),
                                           ],
                                         ),
 
@@ -318,7 +359,7 @@ class _room_DetailsState extends State<room_Details> {
                               ),
                               Text('Match Instruction Rule',
                                   style: GoogleFonts.lato(
-                                    color: Colors.white,
+                                    color: Colors.black,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,)),
                               Container(
@@ -328,45 +369,155 @@ class _room_DetailsState extends State<room_Details> {
 
                                     Expanded(
                                       child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child:Text(snapshot.data[0]['instructions']['instruction']!=null?snapshot.data[0]['instructions']['instruction']:"Not Given yet!!",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,))
+                                          padding: const EdgeInsets.all(8.0),
+                                          child:Text(snapshot.data[0]['instructions']['instruction']!=null?snapshot.data[0]['instructions']['instruction']:"Not Given yet!!",style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,))
 
                                       ),
                                     ),
                                   ],
                                 ),
-                              ),Text('Match participants',
-                                  style: GoogleFonts.lato(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,)),
-                              Container(
-                                child: ListView.builder(
-                                    physics: NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    itemCount: snapshot.data[0]['game_room'].length,
-                                    itemBuilder: (_,index){
-                                      var indexof=index+1;
-                                      return Column(
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Text(indexof.toString(), style: GoogleFonts.lato(
-                                                color: Colors.white,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,)),
-                                              SizedBox(width: 10,),
-                                              Text(snapshot.data[0]['game_room'][index]['player_name'], style: GoogleFonts.lato(
-                                                color: Colors.white,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,)),
-                                            ],
-                                          ),
-                                          Divider(color: Colors.white,)
+                              ),Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                  width: width,
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange,
+                                    borderRadius: BorderRadius.circular(5),
 
-                                        ],
-                                      );
-                                    }),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Center(
+                                      child: Text('Match participants',
+                                          style: GoogleFonts.lato(
+                                    color: Colors.black,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,)),
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              FutureBuilder(
+                                future: slide2,
+                                builder: (ctx, snapshot) {
+                                  if (snapshot.hasData) {
+                                    List data = snapshot.data;
+                                    // print(data);
+                                    return Column(
+                                      children: [
+                                        Container(
+                                          height:height/1.4,
+                                          child: snapshot.data.length > 0
+                                              ?                               ListView.builder(
+
+                                              itemCount: snapshot.data.length,
+                                              scrollDirection: Axis.vertical,
+                                              shrinkWrap: true,
+                                              itemBuilder: (_, index) {
+                                                var indexof = index + 1;
+
+                                                return Column(
+                                                  children: [
+                                                    Padding(
+                                                      padding: const EdgeInsets.all(8.0),
+                                                      child: Container(
+                                                        width: width,
+                                                        child: Row(
+                                                          mainAxisSize: MainAxisSize.min,
+                                                          crossAxisAlignment: CrossAxisAlignment.start,
+
+                                                          children: [
+                                                            snapshot.data[index]['team_type']!=null? Text("Slot  : "+snapshot.data[index]['team_type'].toString(),style:TextStyle(fontSize:16,fontWeight: FontWeight.bold,color: Colors.black)):
+                                                            Text("Slot  : ",style:TextStyle(fontSize:16,fontWeight: FontWeight.bold,color: Colors.black)),
+                                                            SizedBox(width: 5,),
+                                                            Expanded(
+                                                              child: ListView.builder(
+                                                                  physics: NeverScrollableScrollPhysics(),
+                                                                  shrinkWrap: true,
+                                                                  itemCount: snapshot.data[index]['game_player_count'].length,
+                                                                  scrollDirection: Axis.vertical,
+                                                                  itemBuilder: (_,i){
+                                                                    var indexof3 = i + 1;
+
+                                                                    return Container(child:
+                                                                    Row(
+                                                                      children: [
+                                                                        SizedBox(width: 10,),
+
+                                                                        Column(
+                                                                          children: [
+
+                                                                            Row(
+                                                                              children: [
+                                                                                Text('  $indexof3  : ',style: TextStyle(fontSize: 18,
+                                                                                    color: Colors.black,fontWeight: FontWeight.bold
+                                                                                ),),
+                                                                                Text(snapshot.data[index]['game_player_count'][i]['player_name'],style: TextStyle(fontSize: 18,
+                                                                                    color: Colors.black,fontWeight: FontWeight.bold,overflow:snapshot.data[index]['game_player_count'][i]['player_name'].length>15?TextOverflow.ellipsis:null
+                                                                                ),),
+                                                                              ],
+                                                                            )
+                                                                          ],
+                                                                        )                                                       ],
+                                                                    ));
+                                                                  }),
+                                                            )
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Divider(color: Colors.yellow,thickness: 2,)
+                                                  ],
+                                                );
+                                              })
+
+                                              : Container(),
+                                        ),
+                                      ],
+                                    );
+                                  } else if (snapshot.hasError) {
+                                    return AlertDialog(
+                                      title: Text(
+                                        'An Error Occured!',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: Colors.redAccent,
+                                        ),
+                                      ),
+                                      content: Text(
+                                        "${snapshot.error}",
+                                        style: TextStyle(
+                                          color: Colors.blueAccent,
+                                        ),
+                                      ),
+                                      actions: <Widget>[
+                                        FlatButton(
+                                          child: Text(
+                                            'Go Back',
+                                            style: TextStyle(
+                                              color: Colors.redAccent,
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                        )
+                                      ],
+                                    );
+                                  }
+                                  // By default, show a loading spinner.
+                                  return Center(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        CircularProgressIndicator(),
+                                        SizedBox(height: 20),
+                                        Text('This may take some time..')
+                                      ],
+                                    ),
+                                  );
+                                },
                               ),
 
 
@@ -381,7 +532,7 @@ class _room_DetailsState extends State<room_Details> {
                 return CircularProgressIndicator();
               }))
 
-        ),
+      ),
     );
   }
 }

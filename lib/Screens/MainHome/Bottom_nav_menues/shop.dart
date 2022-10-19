@@ -1,12 +1,18 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+
 import 'package:google_fonts/google_fonts.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart'as http;
+import 'package:http/http.dart' as http;
+import 'package:shimmer/shimmer.dart';
 import 'package:sports_club/Screens/Appurl/Appurl.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:sports_club/Screens/MainHome/Daily_matches/open_video.dart';
+
+
 class shop extends StatefulWidget {
   @override
   _shopState createState() => _shopState();
@@ -23,7 +29,8 @@ class _shopState extends State<shop> {
       'authorization': "Bearer $token"
     };
 
-    var response = await http.get(Uri.parse(AppUrl.shop), headers: requestHeaders);
+    var response =
+        await http.get(Uri.parse(AppUrl.Show_video), headers: requestHeaders);
     if (response.statusCode == 200) {
       print('Get post collected' + response.body);
       var userData1 = jsonDecode(response.body)['data'];
@@ -33,165 +40,238 @@ class _shopState extends State<shop> {
       print("post have no Data${response.body}");
     }
   }
+  views_hit(String video_id)async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token');
+
+    Map<String, String> requestHeaders = {
+      'Accept': 'application/json',
+      'authorization': "Bearer $token"
+    };
+    var request = await http.MultipartRequest(
+      'POST',
+      Uri.parse(AppUrl.view+video_id),
+    );
+    // request.fields.addAll({
+    //
+    // });
+
+    request.headers.addAll(requestHeaders);
+
+    request.send().then((result) async {
+      http.Response.fromStream(result).then((response) {
+        if (response.statusCode == 200) {
+         print('Success');
+         print(response.body);
+        } else {
+          print('Fail');
+          print(response.body);
+
+        }
+      });
+    });
+  }
+  RefreshController _refreshController =
+  RefreshController(initialRefresh: false);
+
+  void _onRefresh() async {
+    // monitor network fetch
+    await Future.delayed(Duration(milliseconds: 1000));
+    // if failed,use refreshFailed()
+    setState(() {
+      slide = emergency();
+    });
+    _refreshController.refreshCompleted();
+  }
+
+  void _onLoading() async {
+    // monitor network fetch
+    await Future.delayed(Duration(milliseconds: 1000));
+    // if failed,use loadFailed(),if no data return,use LoadNodata()
+    setState(() {
+      slide = emergency();
+    });
+    if (mounted)
+      setState(() {
+        slide = emergency();
+      });
+    _refreshController.loadComplete();
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    slide=emergency();
+    slide = emergency();
   }
+
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
-    return Scaffold(
-      backgroundColor: Color(0xFF07031E),
+    return SafeArea(
+      child: Scaffold(
+          backgroundColor: Colors.white,
+          resizeToAvoidBottomInset: false,
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
 
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Center(
-              child: Container(
-                height: height/18,
-                width: width/2,
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(5)
-                ,color: Colors.blue
-                ),
-                child: Center(
-                  child: Text('FreeFire Diamonds',
-                      style: GoogleFonts.lato(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,)),
-                ),
-              ),
-            ),
-            SizedBox(height: height/25,),
-            Container(
-                constraints: BoxConstraints(),
-                child: FutureBuilder(
-                    future: slide,
-                    builder: (_, AsyncSnapshot snapshot) {
-                      print(snapshot.data);
-                      switch (snapshot.connectionState) {
-                        case ConnectionState.waiting:
-                          return  SizedBox(
-                            width: MediaQuery.of(context).size.width,
-                            height: MediaQuery.of(context).size.height/5,
+                Container(
+                    constraints: BoxConstraints(),
+                    child: FutureBuilder(
+                        future: slide,
+                        builder: (_, AsyncSnapshot snapshot) {
+                          print(snapshot.data);
+                          switch (snapshot.connectionState) {
+                            case ConnectionState.waiting:
+                              return  SizedBox(
+                                width: MediaQuery.of(context).size.width,
+                                height: MediaQuery.of(context).size.height/5,
 
-                            child: SpinKitThreeInOut(color: Colors.white,size: 20,),
-                          );
-                        default:
-                          if (snapshot.hasError) {
-                            Text('Error: ${snapshot.error}');
-                          } else {
-                            return snapshot.hasData
-                                ?                          Padding(
+                                child: SpinKitThreeInOut(color: Colors.white,size: 20,),
+                              );
+                            default:
+                              if (snapshot.hasError) {
+                                Text('Error: ${snapshot.error}');
+                              } else {
+                                return snapshot.hasData
+                                    ?      Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: Container(
-                              height: MediaQuery.of(context).size.height/1,
-                              child: GridView.builder(
-                                    physics: NeverScrollableScrollPhysics(),
-                                    shrinkWrap: true,
-                                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                                        maxCrossAxisExtent: 200,
-                                        childAspectRatio: 4/3,
-                                        crossAxisSpacing: 10,
-                                        mainAxisSpacing: 10),
-                                    itemCount: snapshot.data.length,
-                                    itemBuilder: (BuildContext ctx, index) {
-                                      var url=snapshot.data[index]['links'];
-                                      return InkWell(
-                                          onTap: ()async{
-                                            if (await canLaunch(url))
-                                            await launch(url);
-                                            else
-                                            // can't launch url, there is some error
-                                            throw "Could not launch $url";
-                                          },
-                                          child:  Container(
-                                            height: height/7.5,
-                                            width: width/2.4,
-                                            decoration: BoxDecoration(
-                                                border: Border.all(color: Colors.red)
-
-                                            ),
-                                            child: Column(
-                                              children: [
-                                                Align(
-                                                  alignment:Alignment.topRight,
-                                                  child: Container(
-                                                    width: width/5,
-                                                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(5)
-                                                        ,color: Colors.red
-                                                    ),
-                                                    child: Center(
-                                                      child: Text(snapshot.data[index]['percent_rate']+' % off',
-                                                          style: GoogleFonts.lato(
-                                                            color: Colors.white,
-                                                            fontSize: 18,
-                                                            fontWeight: FontWeight.w600,)),
-                                                    ),
-                                                  ),
-                                                ),
-                                                Row(
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        height: MediaQuery.of(context).size.height/1.3,
+                                        child: SmartRefresher(
+                                          enablePullDown: true,
+                                          enablePullUp: false,
+                                          header: WaterDropHeader(),
+                                          footer: CustomFooter(
+                                            builder: (BuildContext context,
+                                                LoadStatus mode) {
+                                              Widget body;
+                                              if (mode == LoadStatus.idle) {
+                                                body = Text("pull up load");
+                                              } else if (mode ==
+                                                  LoadStatus.loading) {
+                                                body =
+                                                    CupertinoActivityIndicator();
+                                              } else if (mode ==
+                                                  LoadStatus.failed) {
+                                                body = Text(
+                                                    "Load Failed!Click retry!");
+                                              } else if (mode ==
+                                                  LoadStatus.canLoading) {
+                                                body = Text(
+                                                    "release to load more");
+                                              } else {
+                                                body = Text("No more Data");
+                                              }
+                                              return Container(
+                                                height: 55.0,
+                                                child: Center(child: body),
+                                              );
+                                            },
+                                          ),
+                                          controller: _refreshController,
+                                          onRefresh: _onRefresh,
+                                          onLoading: _onLoading,
+                                          child: ListView.builder(
+                                              itemCount: snapshot.data.length,
+                                              itemBuilder: (context,index){
+                                                return Column(
                                                   children: [
-                                                    Padding(
-                                                      padding: const EdgeInsets.all(8.0),
-                                                      child: Image.asset('Images/diamond.png',height: height/25,width: width/10,),
-                                                    ),
                                                     Row(
                                                       children: [
-                                                        Column(
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                                          children: [
-                                                            Row(
-                                                              children: [
-                                                                Text(snapshot.data[index]['title'],
-                                                                    style: GoogleFonts.lato(
-                                                                      color: Colors.white,
-                                                                      fontSize: 16,
-                                                                      fontWeight: FontWeight.w600,)),Padding(
-                                                                  padding: const EdgeInsets.all(8.0),
-                                                                  child: Image.asset('Images/diamond.png',height: 20,width:20),
-                                                                ),
-                                                              ],
-                                                            ),Text('৳ '+snapshot.data[index]['offer_price'],
-                                                                style: GoogleFonts.lato(
-                                                                  color: Colors.orange,
-                                                                  fontSize: 14,
-                                                                  fontWeight: FontWeight.w600,)),Text('৳ '+snapshot.data[index]['price'],
-                                                                style: GoogleFonts.lato(
-                                                                  color: Colors.white,
-                                                                  fontSize: 14,
-                                                                  decoration: TextDecoration.lineThrough,
+                                                        Shimmer.fromColors(
+                                                          baseColor: Colors.blue,
+                                                          highlightColor:Colors.blue,
+                                                          child: IconButton(
+                                                              icon: const Icon(Icons.video_library,color: Colors.blue,),
+                                                              onPressed: (){
 
-                                                                  fontWeight: FontWeight.w600,)),
-                                                          ],
-                                                        )
+                                                              }
+                                                          ),
+                                                        ),
+                                                        Expanded(
+                                                          child: Shimmer.fromColors(
+                                                            baseColor: Colors.black,
+                                                            highlightColor:Colors.blue,
+                                                            child: Text(" "+ snapshot.data[index]['title'].toUpperCase(),
+                                                                style: GoogleFonts.lato(
+                                                                    color: Colors.white,
+                                                                    fontWeight: FontWeight.w800,
+                                                                    fontSize: 14)),
+                                                          ),
+                                                        ),
                                                       ],
-                                                    )
+                                                    ),
+
+                                                    InkWell(
+                                                      onTap:(){
+                                                        views_hit(snapshot.data[index]['id'].toString());
+                                                        Navigator.push(context, MaterialPageRoute(builder: (_)=>open_video(link: snapshot.data[index]['link']
+                                                          ,id:snapshot.data[index]['id'].toString() ,
+                                                          views: snapshot.data[index]['views'],
+                                                          title: snapshot.data[index]['title']
+
+
+                                                        )));
+                                                      },
+                                                      child: Container(
+                                                        height: height/4,
+                                                        width: width,
+                                                        decoration: BoxDecoration(
+                                                            borderRadius: BorderRadius.circular(15),
+                                                            image: DecorationImage(
+                                                                image: NetworkImage(AppUrl.pic_url1+snapshot.data[index]['thumbnail']),
+                                                                fit: BoxFit.cover
+                                                            )
+
+                                                        ),),
+                                                    ),
+
+
+                                                    SizedBox(height: 10,)
 
                                                   ],
-                                                )
-                                              ],
-                                            ),
-                                          )
-                                      );
-                                    }),
-                            ),
+                                                );
+                                              }),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 )
 
 
-                                : Text('No data');
+                                    : Text('No data');
+                              }
                           }
-                      }
-                      return CircularProgressIndicator();
-                    })),
+                          return CircularProgressIndicator();
+                        })),
 
 
-          ],
-        ),
-      )
+                // Center(
+                //   child: Column(
+                //     children: [
+                //       SizedBox(
+                //         height: height / 3,
+                //       ),
+                //       Shimmer.fromColors(
+                //         baseColor: Colors.black,
+                //         highlightColor:Colors.blue,
+                //         child: Text("Comming Soon".toUpperCase(),
+                //             style: GoogleFonts.lato(
+                //                 color: Colors.white,
+                //                 fontWeight: FontWeight.w800,
+                //                 fontSize: 20)),
+                //       ),
+                //     ],
+                //   ),
+                // ),
+              ],
+            ),
+          )),
     );
   }
 }

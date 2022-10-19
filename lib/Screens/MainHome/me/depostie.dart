@@ -1,15 +1,16 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_dropdown/flutter_dropdown.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart'as http;
+import 'package:http/http.dart' as http;
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sports_club/Screens/Appurl/Appurl.dart';
 import '../mainHome.dart';
+import 'package:flutter/services.dart';
+
 class deposite extends StatefulWidget {
   @override
   _depositeState createState() => _depositeState();
@@ -18,11 +19,12 @@ class deposite extends StatefulWidget {
 class _depositeState extends State<deposite> {
   final _formKey = GlobalKey<FormState>();
 
-  TextEditingController mobile=TextEditingController();
-  TextEditingController amount=TextEditingController();
-  bool isrequsted=false;
-  var bkash_,rocket_,nagad_;
-  Future blaanceofuser;  Future balance() async {
+  TextEditingController mobile = TextEditingController();
+  TextEditingController amount = TextEditingController();
+  bool isrequsted = false;
+  var bkash_, rocket_, nagad_;
+  Future blaanceofuser;
+  Future balance() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token');
 
@@ -31,33 +33,32 @@ class _depositeState extends State<deposite> {
       'authorization': "Bearer $token"
     };
 
-    var response = await http.get(Uri.parse(AppUrl.transaction_hostory), headers: requestHeaders);
+    var response = await http.get(Uri.parse(AppUrl.transaction_hostory),
+        headers: requestHeaders);
     if (response.statusCode == 200) {
       print('Get post collected' + response.body);
       var userData1 = jsonDecode(response.body)['data'];
       print(userData1);
       print(userData1['balance']);
-      setState(() {
-
-      });
+      setState(() {});
       return userData1;
     } else {
       print("post have no Data${response.body}");
     }
   }
+
   var player_id;
-  func()async{
+  func() async {
     var status = await OneSignal.shared.getPermissionSubscriptionState();
 
     var playerId = status.subscriptionStatus.userId;
     print(playerId);
     setState(() {
-      player_id=playerId;
+      player_id = playerId;
     });
-
-
   }
-  Future withdraw(String wallettype,String phone,String Ammount)async {
+
+  Future withdraw(String wallettype, String phone, String Ammount) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String token = prefs.getString('token');
 
@@ -65,10 +66,9 @@ class _depositeState extends State<deposite> {
       'Accept': 'application/json',
       'authorization': "Bearer $token"
     };
-    var request = await http.MultipartRequest('POST',
+    var request = await http.MultipartRequest(
+      'POST',
       Uri.parse(AppUrl.deposite),
-
-
     );
     request.fields.addAll({
       'wallet_type': wallettype,
@@ -79,15 +79,14 @@ class _depositeState extends State<deposite> {
     request.headers.addAll(requestHeaders);
 
     request.send().then((result) async {
-      http.Response.fromStream(result)
-          .then((response) {
+      http.Response.fromStream(result).then((response) {
         if (response.statusCode == 200) {
           setState(() {
-            isrequsted=false;
+            isrequsted = false;
           });
-          Navigator.push(context, MaterialPageRoute(builder: (_)=>MainHome()));
+          Navigator.push(
+              context, MaterialPageRoute(builder: (_) => MainHome()));
           Fluttertoast.showToast(
-
               msg: "Deposit Request Placed Successfully",
               toastLength: Toast.LENGTH_LONG,
               gravity: ToastGravity.BOTTOM,
@@ -95,29 +94,27 @@ class _depositeState extends State<deposite> {
               backgroundColor: Colors.black54,
               textColor: Colors.white,
               fontSize: 16.0);
-        }else{
+        } else {
           setState(() {
-            isrequsted=false;
+            isrequsted = false;
           });
           print("Fail! ");
           print(response.body.toString());
           Fluttertoast.showToast(
-
               msg: "Error Occured",
               toastLength: Toast.LENGTH_LONG,
               gravity: ToastGravity.BOTTOM,
               timeInSecForIosWeb: 1,
               backgroundColor: Colors.red,
               textColor: Colors.white,
-              fontSize: 16.0);          return response.body;
-
+              fontSize: 16.0);
+          return response.body;
         }
-      }
-
-      );
+      });
     });
   }
-  bool submited=false;
+var am='0';
+  bool submited = false;
   Future slide;
   Future<List<dynamic>> emergency() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -128,8 +125,8 @@ class _depositeState extends State<deposite> {
       'authorization': "Bearer $token"
     };
 
-    var response = await http.get(Uri.parse(AppUrl.bkash
-    ), headers: requestHeaders);
+    var response =
+        await http.get(Uri.parse(AppUrl.bkash), headers: requestHeaders);
     if (response.statusCode == 200) {
       print('Get post collected' + response.body);
       var userData1 = jsonDecode(response.body)['data'];
@@ -140,17 +137,19 @@ class _depositeState extends State<deposite> {
     }
   }
 
-  bool ischecked=false;
-  bool rocket=false;
-  bool Nagad=false;
+  bool ischecked = false;
+  bool rocket = false;
+  bool Nagad = false;
+  bool paytm = false;
   var selected_country;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    slide=emergency();
+    slide = emergency();
     func();
   }
+
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
@@ -169,7 +168,7 @@ class _depositeState extends State<deposite> {
           },
         ),
         title: InkWell(
-          onTap: (){
+          onTap: () {
             print(player_id);
           },
           child: Text("Deposit",
@@ -179,376 +178,709 @@ class _depositeState extends State<deposite> {
                   fontSize: 20)),
         ),
       ),
-body: SingleChildScrollView(
-  child:   Column(
-    children: [
-      SizedBox(height: 15,),
-      Container(
-          height: height/5,
-          constraints: BoxConstraints(),
-          child: FutureBuilder(
-              future: slide,
-              builder: (_, AsyncSnapshot snapshot) {
-                print(snapshot.data);
-                switch (snapshot.connectionState) {
-                  case ConnectionState.waiting:
-                    return  SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height/5,
-
-                      child: SpinKitThreeInOut(color: Colors.white,size: 20,),
-                    );
-                  default:
-                    if (snapshot.hasError) {
-                      Text('Error: ${snapshot.error}');
-                    } else {
-                      return snapshot.hasData
-                          ?
-                      Container(
-                        child: Column(
-                          children: [
-
-                            Container(
-
-                              child: ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: snapshot.data.length,
-                                  itemBuilder: (_, index) {
-
-                                    print(snapshot.data.length);
-
-
-                                    return         Column(
-                                      children: [
-                                        Container(
-
-                                          child: Row(
-                                            children: <Widget>[
-
-                                              Image.asset(snapshot.data[index]['wallet_type']=='bkash'?'Images/bkas.png':snapshot.data[index]['wallet_type']=='nagod'?'Images/nagad.jpg':'Images/rocket.png',height: 40,width: 50,),
-                                              SizedBox(width: 10,),
-                                              Row(
-                                                children: [
-                                                  SelectableText(snapshot.data[index]['wallet_number'],
-                                                      style: GoogleFonts.lato(
-                                                        fontSize: 18,
-                                                        color: Colors.redAccent,
-                                                        fontWeight: FontWeight.w500,
-                                                      )),Text("(Send Money /Cash In)Minimum\n10 TK",
-                                                      style: GoogleFonts.lato(
-                                                        fontSize: 13,
-                                                        color: Colors.grey,
-                                                        fontWeight: FontWeight.w500,
-                                                      )),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        SizedBox(height: 10,)
-                                      ],
-                                    );
-                                  }),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            
+            SizedBox(
+              height: 15,
+            ),
+            Container(
+                height: height / 4,
+                constraints: BoxConstraints(),
+                child: FutureBuilder(
+                    future: slide,
+                    builder: (_, AsyncSnapshot snapshot) {
+                      print(snapshot.data);
+                      switch (snapshot.connectionState) {
+                        case ConnectionState.waiting:
+                          return SizedBox(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height / 5,
+                            child: SpinKitThreeInOut(
+                              color: Colors.white,
+                              size: 20,
                             ),
-                          ],
-                        ),
-                      )
+                          );
+                        default:
+                          if (snapshot.hasError) {
+                            Text('Error: ${snapshot.error}');
+                          } else {
+                            return snapshot.hasData
+                                ? Container(
+                                    child: Column(
+                                      children: [
+                                        Expanded(
+                                          child: ListView.builder(
+                                              shrinkWrap: true,
+                                              itemCount: snapshot.data.length,
+                                              itemBuilder: (_, index) {
+                                                print(snapshot.data.length);
 
+                                                return Column(
+                                                  children: [
+                                                    Container(
+                                                      child: Row(
+                                                        children: <Widget>[
+Padding(
+  padding: const EdgeInsets.all(8.0),
+  child:   Text( snapshot.data[index]
 
+  [
 
+  'wallet_type'] ==
 
-                          : Text('No data');
-                    }
-                }
-                return CircularProgressIndicator();
-              })),
+      'bkash'
 
-      SizedBox(height: height/25,),
+      ? 'B-kash'
 
-      Center(child:  Text("Instructions",
-          style: GoogleFonts.lato(
-            fontSize: 18,
-            color: Colors.redAccent,
-            fontWeight: FontWeight.w500,
-          )),),
-      Container(
-        child: Form(
-          key: _formKey,
+      : snapshot.data[index]
 
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(18.0),
-                child: TextFormField(
-                  controller: amount, style: TextStyle(
-                    color: Colors.black
-                ),
-                  validator: (value)=>value.isEmpty?"Field Can't be empty":null,
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10),),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10),borderSide:BorderSide(color: Colors.black, width: 1.0),),
-                      hintText: "কত টাকা পাঠিয়েছেন",
+  [
 
-                      hintStyle: GoogleFonts.lato(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 14
-                      )
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(18.0),
-                child: TextFormField(
-                  controller: mobile, style: TextStyle(
-                    color: Colors.black
-                ),
-                  validator: (value)=>value.isEmpty?"Field Can't be empty":value.length<3?"Enter Last 4 Digit":value.length>4?"Digit limit 4":null,
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10),),
-                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10),borderSide:BorderSide(color: Colors.black, width: 1.0),),
-                      hintText: " নাম্বার এর শেষ ৪ ডিজিট"
-                          ,
+  'wallet_type'] ==
 
-                      hintStyle: GoogleFonts.lato(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 14
-                      )
-                  ),
-                ),
-              ),
-              Center(child:  Text("Select Payment Method",
+      'nagod'
+
+      ? 'Nagad':snapshot.data[index]
+
+  [
+
+  'wallet_type']=='paytm'?'PayTM'
+
+      : 'Ro-cket',style: TextStyle(
+    color: Colors.black,fontWeight: FontWeight.w700
+  ),),
+)           ,                                               SizedBox(
+                                                            width: 2,
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              Container(
+                                                                color: Colors
+                                                                    .yellow,
+                                                                child: snapshot.data[
+                                                                index]
+                                                                [
+                                                                'wallet_number']!=null?SelectableText(
+                                                                    snapshot.data[
+                                                                    index]
+                                                                    [
+                                                                    'wallet_number'],
+                                                                    style:
+                                                                    GoogleFonts
+                                                                        .lato(
+                                                                      fontSize:
+                                                                      18,
+                                                                      color: Colors
+                                                                          .black,
+                                                                      fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                      // decoration: TextDecoration.underline,
+                                                                    )):SelectableText(
+                                                                   '0186568445',
+                                                                    style:
+                                                                    GoogleFonts
+                                                                        .lato(
+                                                                      fontSize:
+                                                                      18,
+                                                                      color: Colors
+                                                                          .black,
+                                                                      fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                      // decoration: TextDecoration.underline,
+                                                                    )),
+                                                              ),
+                                                              Text(
+                                                                  "( সেন্ড কয়েন্স )Minimum\n10 Coins",
+                                                                  style:
+                                                                      GoogleFonts
+                                                                          .lato(
+                                                                    fontSize:
+                                                                        13,
+                                                                    color: Colors
+                                                                        .grey,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w500,
+                                                                  )),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      height: 10,
+                                                    )
+                                                  ],
+                                                );
+                                              }),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                : Text('No data');
+                          }
+                      }
+                      return CircularProgressIndicator();
+                    })),
+            SizedBox(
+              height: height / 60,
+            ),
+            Center(
+              child: Text("Instructions",
                   style: GoogleFonts.lato(
                     fontSize: 18,
-                    color: Colors.black,
+                    color: Colors.redAccent,
                     fontWeight: FontWeight.w500,
-                  )),),
-              Padding(
-                padding: const EdgeInsets.only(left:8.0,right:8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  )),
+            ),
+            Container(
+              child: Form(
+                key: _formKey,
+                child: Column(
                   children: [
-                    Expanded(
-                      child: Container(
-                        height:MediaQuery.of(context).size.height/12,
-                        width: MediaQuery.of(context).size.width/2,
-                        child: Stack(
-                          children: [
-
-                            InkWell(
-                              onTap:(){
-                                setState(() {
-                                  ischecked=true;
-                                  rocket=false;
-                                  Nagad=false;
-                                  selected_country='bkash';
-                                });
-                                print(selected_country);
-                              },
-                              child: Container(
-                                height:MediaQuery.of(context).size.height/10,
-                                width: MediaQuery.of(context).size.width/3,
-                                color: Colors.white,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Center(child: Row(
-                                    children: [
-                                      Image.asset("Images/bkas.png",height: 40,width: 20,),
-                                      Text("Bkash"),
-                                    ],
-                                  )),
-                                ),
-
-                              ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextFormField(
+                        keyboardType: TextInputType.number,
+                        controller: amount,
+                        style: TextStyle(color: Colors.black),
+                        validator: (value) => value.isEmpty
+                            ? "Field Can't be empty"
+                            : value.length > 11
+                                ? "Digit Limit 11"
+                                : null,
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            Positioned(
-                                top: -20,
-                                left: MediaQuery.of(context).size.width/6,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: ischecked==true?Container(
-                                    height: 50,
-                                    width: 50,
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide:
+                                  BorderSide(color: Colors.black, width: 1.0),
+                            ),
+                            hintText: "Amount",
+                            prefix: Text('৳ ',
+                                style: GoogleFonts.lato(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 18)),
+                            hintStyle: GoogleFonts.lato(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 14)),
+                        onChanged:(v){
 
-                                    child: Icon(Icons.check_circle,color:Colors.indigoAccent,),):Container(
-                                    height: 50,
-                                    width: 50,
 
-                                    child: Icon(Icons.check_circle,color:Colors.transparent,),),
-                                )),
-
-
-                          ],
-                        ),
+                          setState(() {
+                            am=v;
+                          });
+                        } ,
                       ),
                     ),
-                    SizedBox(width: 5,),
+                    Row(mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
 
-                    Expanded(
-                      child: Container(
-                        height:MediaQuery.of(context).size.height/12,
-                        width: MediaQuery.of(context).size.width/2,
-                        child: Stack(
+
+                        Row(
                           children: [
+                            Text(
 
-                            InkWell(
-                              onTap:(){
-                                setState(() {
-                                  ischecked=false;
-                                  rocket=true;
-                                  Nagad=false;
-                                  selected_country='rocket';
-                                });
-                                print(selected_country);
-                              },
-                              child: Container(
-                                height:MediaQuery.of(context).size.height/10,
-                                width: MediaQuery.of(context).size.width/3,
-                                color: Colors.white,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Center(child: Row(
-                                    children: [
-                                      Image.asset("Images/rocket.png",height: 40,width: 30,),
-                                      Text("Rocket"),
-                                    ],
-                                  )),
-                                ),
+                                "** Amount   "
+                                ,
+                                style: GoogleFonts.lato(
+                                    color: Colors.redAccent,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16)),Text(
 
-                              ),
-                            ),
-                            Positioned(
-                                top: -20,
-                                left: MediaQuery.of(context).size.width/6,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: rocket==true?Container(
-                                    height: 50,
-                                    width: 50,
+                                am
+                                ,
+                                style: GoogleFonts.lato(
+                                    color: Colors.redAccent,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16)),Text(
 
-                                    child: Icon(Icons.check_circle,color:Colors.indigoAccent,),):Container(
-                                    height: 50,
-                                    width: 50,
+                               ' =  '
+                                ,
+                                style: GoogleFonts.lato(
+                                    color: Colors.redAccent,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16)),Text(
 
-                                    child: Icon(Icons.check_circle,color:Colors.transparent,),),
-                                )),
-
-
+                                am                              ,
+                                style: GoogleFonts.lato(
+                                    color: Colors.redAccent,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16)),
                           ],
-                        ),
+                        ),  Image.asset('Images/t.png',height: 30,width: 30,),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextFormField(
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          new LengthLimitingTextInputFormatter(4),
+                        ],
+                        controller: mobile,
+                        style: TextStyle(color: Colors.black),
+                        validator: (value) => value.isEmpty
+                            ? "Field Can't be empty"
+                            : value.length < 3
+                                ? "Enter Last 4 Digit"
+                                : value.length > 4
+                                    ? "Digit limit 4"
+                                    : null,
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide:
+                                  BorderSide(color: Colors.black, width: 1.0),
+                            ),
+                            hintText: " নাম্বার এর শেষ ৪ ডিজিট",
+                            hintStyle: GoogleFonts.lato(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 14)),
                       ),
                     ),
-                    SizedBox(width: 5,),
+                    Center(
+                      child: Text("Select  Method",
+                          style: GoogleFonts.lato(
+                            fontSize: 18,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w500,
+                          )),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              height: MediaQuery.of(context).size.height / 12,
+                              width: MediaQuery.of(context).size.width / 2,
+                              child: Stack(
+                                children: [
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        ischecked = true;
+                                        rocket = false;
+                                        Nagad = false;
+                                        paytm=false;
 
-                    Expanded(
-                      child: Container(
-                        height:MediaQuery.of(context).size.height/12,
-                        width: MediaQuery.of(context).size.width/2,
-                        child: Stack(
-                          children: [
+                                        selected_country = 'bkash';
+                                      });
+                                      print(selected_country);
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Container(
+                                        height:
+                                            MediaQuery.of(context).size.height /
+                                                10,
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                                3,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.grey.withOpacity(0.2),
+                                              spreadRadius: 2,
+                                              blurRadius: 7,
+                                              offset: Offset(0,
+                                                  3), // changes position of shadow
+                                            ),
+                                          ],
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Center(
+                                              child: Row(mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Text("B-Kash",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black),),
 
-                            InkWell(
-                              onTap:(){
-                                setState(() {
-                                  ischecked=false;
-                                  rocket=false;
-                                  Nagad=true;
-                                  selected_country='nagad';
-                                });
-                                print(selected_country);
-                              },
-                              child: Container(
-                                height:MediaQuery.of(context).size.height/10,
-                                width: MediaQuery.of(context).size.width/3,
-                                color: Colors.white,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Center(child: Row(
-                                    children: [
-                                      Image.asset("Images/nagad.jpg",height: 40,width: 20,),
-                                      Text("Nagad"),
-                                    ],
-                                  )),
-                                ),
-
+                                            ],
+                                          )),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                      top: -20,
+                                      left:
+                                          MediaQuery.of(context).size.width / 6,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: ischecked == true
+                                            ? Container(
+                                                height: 50,
+                                                width: 50,
+                                                child: Icon(
+                                                  Icons.check_circle,
+                                                  color: Colors.indigoAccent,
+                                                ),
+                                              )
+                                            : Container(
+                                                height: 50,
+                                                width: 50,
+                                                child: Icon(
+                                                  Icons.check_circle,
+                                                  color: Colors.transparent,
+                                                ),
+                                              ),
+                                      )),
+                                ],
                               ),
                             ),
-                            Positioned(
-                                top: -20,
-                                left: MediaQuery.of(context).size.width/6,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Nagad==true?Container(
-                                    height: 50,
-                                    width: 50,
+                          ),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Expanded(
+                            child: Container(
+                              height: MediaQuery.of(context).size.height / 12,
+                              width: MediaQuery.of(context).size.width / 2,
+                              child: Stack(
+                                children: [
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        ischecked = false;
+                                        rocket = true;
+                                        Nagad = false;                                        paytm=false;
 
-                                    child: Icon(Icons.check_circle,color:Colors.indigoAccent,),):Container(
-                                    height: 50,
-                                    width: 50,
+                                        selected_country = 'rocket';
+                                      });
+                                      print(selected_country);
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Container(
+                                        height:
+                                            MediaQuery.of(context).size.height /
+                                                10,
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                                3,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.grey.withOpacity(0.2),
+                                              spreadRadius: 2,
+                                              blurRadius: 7,
+                                              offset: Offset(0,
+                                                  3), // changes position of shadow
+                                            ),
+                                          ],
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Center(
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
 
-                                    child: Icon(Icons.check_circle,color:Colors.transparent,),),
-                                )),
+                                              Text("Ro-cket",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black),),
+                                            ],
+                                          )),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                      top: -20,
+                                      left:
+                                          MediaQuery.of(context).size.width / 6,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: rocket == true
+                                            ? Container(
+                                                height: 50,
+                                                width: 50,
+                                                child: Icon(
+                                                  Icons.check_circle,
+                                                  color: Colors.indigoAccent,
+                                                ),
+                                              )
+                                            : Container(
+                                                height: 50,
+                                                width: 50,
+                                                child: Icon(
+                                                  Icons.check_circle,
+                                                  color: Colors.transparent,
+                                                ),
+                                              ),
+                                      )),
+                                ],
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Expanded(
+                            child: Container(
+                              height: MediaQuery.of(context).size.height / 12,
+                              width: MediaQuery.of(context).size.width / 2,
+                              child: Stack(
+                                children: [
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        ischecked = false;
+                                        rocket = false;
+                                        Nagad = true;                                        paytm=false;
 
+                                        selected_country = 'nagad';
+                                      });
+                                      print(selected_country);
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Container(
+                                        height:
+                                            MediaQuery.of(context).size.height /
+                                                10,
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                                3,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.grey.withOpacity(0.2),
+                                              spreadRadius: 2,
+                                              blurRadius: 7,
+                                              offset: Offset(0,
+                                                  3), // changes position of shadow
+                                            ),
+                                          ],
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Center(
+                                              child: Row(mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Text("Nagad",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black),),
 
-                          ],
-                        ),
+                                            ],
+                                          )),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                      top: -20,
+                                      left:
+                                          MediaQuery.of(context).size.width / 6,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Nagad == true
+                                            ? Container(
+                                                height: 50,
+                                                width: 50,
+                                                child: Icon(
+                                                  Icons.check_circle,
+                                                  color: Colors.indigoAccent,
+                                                ),
+                                              )
+                                            : Container(
+                                                height: 50,
+                                                width: 50,
+                                                child: Icon(
+                                                  Icons.check_circle,
+                                                  color: Colors.transparent,
+                                                ),
+                                              ),
+                                      )),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            height: MediaQuery.of(context).size.height / 12,
+                            width: MediaQuery.of(context).size.width / 2.8,
+                            child: Stack(
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      ischecked = false;
+                                      rocket = false;
+                                      Nagad = false;
+                                      paytm=true;
+
+                                      selected_country = 'paytm';
+                                    });
+                                    print(selected_country);
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Container(
+                                      height:
+                                      MediaQuery.of(context).size.height /
+                                          10,
+                                      width:
+                                      MediaQuery.of(context).size.width /
+                                          3,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius:
+                                        BorderRadius.circular(10),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                            Colors.grey.withOpacity(0.2),
+                                            spreadRadius: 2,
+                                            blurRadius: 7,
+                                            offset: Offset(0,
+                                                3), // changes position of shadow
+                                          ),
+                                        ],
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Center(
+                                            child: Row(mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Text("PayTM",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.black),),
+
+                                              ],
+                                            )),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                    top: -20,
+                                    left:
+                                    MediaQuery.of(context).size.width / 6,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: paytm == true
+                                          ? Container(
+                                        height: 50,
+                                        width: 50,
+                                        child: Icon(
+                                          Icons.check_circle,
+                                          color: Colors.indigoAccent,
+                                        ),
+                                      )
+                                          : Container(
+                                        height: 50,
+                                        width: 50,
+                                        child: Icon(
+                                          Icons.check_circle,
+                                          color: Colors.transparent,
+                                        ),
+                                      ),
+                                    )),
+                              ],
+                            ),
+                          ),
+
+                        ],
+                      ),
+                    ),
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                            "* ভেরিফাই করার আগে সেন্ড  করতে হবে নাহয় ভেরিফিকেশন সফল হবেনা",
+                            style: GoogleFonts.lato(
+                              fontSize: 14,
+                              color: Colors.redAccent,
+                              fontWeight: FontWeight.w500,
+                            )),
+                      ),
+                    ),
+                    isrequsted == false
+                        ? Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: InkWell(
+                                onTap: () {
+                                  if (_formKey.currentState.validate()) {
+                                   if(int.parse(amount.text)<10){
+                                     Fluttertoast.showToast(
+                                         msg: "Minimum Deposite 10 Taka",
+                                         toastLength: Toast.LENGTH_LONG,
+                                         gravity: ToastGravity.BOTTOM,
+                                         timeInSecForIosWeb: 1,
+                                         backgroundColor: Colors.red,
+                                         textColor: Colors.white,
+                                         fontSize: 16.0);
+                                   }else{
+                                     setState(() {
+                                       isrequsted = true;
+                                     });
+
+                                     withdraw(selected_country, mobile.text,
+                                         amount.text);
+                                   }
+                                    print(selected_country);
+                                  }
+                                },
+                                child: Container(
+                                  height: height / 20,
+                                  width: width,
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange,
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: Center(
+                                    child: Text("Verify Payment".toUpperCase(),
+                                        style: GoogleFonts.lato(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 18)),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                        : Center(
+                            child: SpinKitThreeInOut(
+                              color: Colors.orange,
+                              size: 20,
+                            ),
+                          ),
                   ],
                 ),
               ),
-              Center(child:  Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text("* ভেরিফাই করার আগে সেন্ড মানি করতে হবে নাহয় ভেরিফিকেশন সফল হবেনা",
-                    style: GoogleFonts.lato(
-                      fontSize: 14,
-                      color: Colors.redAccent,
-                      fontWeight: FontWeight.w500,
-                    )),
-              ),),
-             isrequsted==false? Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: InkWell(
-                    onTap: (){
-                      setState(() {
-                        isrequsted=true;
-                      });
-                      if(_formKey.currentState.validate()){
-withdraw(selected_country, mobile.text, amount.text);
-                        print(selected_country);
-                      }
-                    },
-                    child: Container(
-                      height: height/20,
-                      width: width,
-                      decoration: BoxDecoration(
-                        color: Colors.orange,
-                        borderRadius: BorderRadius.circular(5),
-
-                      ),
-                      child:  Center(
-                        child: Text("Verify Payment".toUpperCase(),
-                            style: GoogleFonts.lato(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 18)),
-                      ),
-                    ),
-                  ),
-                ),
-              ):Center(child: SpinKitThreeInOut(color: Colors.orange,size: 20,),),
-
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-
-    ],
-  ),
-),
-
     );
   }
 }

@@ -1,23 +1,23 @@
 import 'dart:async';
 import 'dart:convert';
 
-
+import 'package:circular_profile_avatar/circular_profile_avatar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import 'package:google_fonts/google_fonts.dart';
-// import 'package:onesignal_flutter/onesignal_flutter.dart';
-
+import 'package:package_info/package_info.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sports_club/Screens/Appurl/Appurl.dart';
+import 'package:sports_club/Screens/MainHome/Daily_matches/no_internet.dart';
 import 'package:sports_club/Screens/MainHome/mainHome.dart';
 
+import '../Update_app.dart';
 import 'Login_screen.dart';
 import 'Maintanence.dart';
 
-import 'package:http/http.dart'as http;
+import 'package:http/http.dart' as http;
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key key}) : super(key: key);
@@ -37,6 +37,7 @@ class _SplashScreenState extends State<SplashScreen>
     token = prefs.getString('token');
     print(token);
   }
+
   var check_main;
   Future telegram() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -46,14 +47,38 @@ class _SplashScreenState extends State<SplashScreen>
       'Accept': 'application/json',
     };
 
-    var response = await http.get(Uri.parse(AppUrl.maintanence), headers: requestHeaders);
+    var response =
+        await http.get(Uri.parse(AppUrl.maintanence), headers: requestHeaders);
     if (response.statusCode == 200) {
       print('Get post collected' + response.body);
       var userData1 = jsonDecode(response.body)['data'];
       print('niceto');
       print(userData1['status']);
       setState(() {
-        check_main=userData1['status'];
+        check_main = userData1['status'];
+      });
+      return userData1;
+    } else {
+      print("post have no Data${response.body}");
+    }
+  }
+  Future u() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token');
+
+    Map<String, String> requestHeaders = {
+      'Accept': 'application/json',
+    };
+
+    var response =
+        await http.get(Uri.parse(AppUrl.mapk), headers: requestHeaders);
+    if (response.statusCode == 200) {
+      print('Get post collected' + response.body);
+      var userData1 = jsonDecode(response.body)['data'];
+      print('ajib');
+    print(userData1);
+      setState(() {
+        update = userData1['version'];
       });
       return userData1;
     } else {
@@ -62,7 +87,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   AnimationController _controller;
-
+var update;
   @override
   void initState() {
     // TODO: implement initState
@@ -70,13 +95,15 @@ class _SplashScreenState extends State<SplashScreen>
     // initPlatformState();
     _controller = new AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 500),
+      duration: Duration(milliseconds: 100),
     );
     // Timer(Duration(milliseconds: 200),()=> );
     _controller.forward();
     telegram();
     super.initState();
     startTimer();
+    u();
+
   }
 
   @override
@@ -85,65 +112,117 @@ class _SplashScreenState extends State<SplashScreen>
     super.dispose();
     _controller.dispose();
   }
+
   startTimer() async {
-    var duration = Duration(milliseconds:5500);
+    var duration = Duration(milliseconds: 2000);
     return new Timer(duration, route);
   }
-  Naviagate(){
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=>MainHome()));
-  }Naviagatelogin(){
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=>login_screen()));
-  }Naviagatemain(){
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_)=>maintanence()));
-  }
-  var main=3;
 
-  route() {
-    check_main==1?Naviagatemain():token==null?Naviagatelogin():Naviagate();
+  Naviagate() {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (_) => MainHome()));
+  }
+
+  Naviagatelogin() {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (_) => login_screen()));
+  }
+
+  Naviagatemain() {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (_) => update_app()));
+  }
+Naviagatemain2() {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (_) => maintanence()));
+  }no() {
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (_) => no_internet()));
+  }
+
+  var main = 3;
+  var version;
+  // getversion()async{
+  //   var packageInfo = await PackageInfo.fromPlatform();
+  //   String appName = packageInfo.appName;
+  //   String packageName = packageInfo.packageName;
+  //   String version_ = packageInfo.version;
+  //   String buildNumber = packageInfo.buildNumber;
+  //   setState(() {
+  //     version=version_;
+  //   });
+  //
+  // }
+
+  route() async{
+    var packageInfo = await PackageInfo.fromPlatform();
+    String appName = packageInfo.appName;
+    String packageName = packageInfo.packageName;
+    String version_ = packageInfo.version;
+    String buildNumber = packageInfo.buildNumber;
+    print('New');
+    print(version_);
+    setState(() {
+      version=version_;
+    });
+  update!=null?update!=version?Naviagatemain():check_main == 1
+        ? Naviagatemain2()
+        :
+    token == null
+            ? Naviagatelogin()
+            : Naviagate(): Naviagate()  ;
   }
 
   @override
   Widget build(BuildContext context) {
-    var width=MediaQuery.of(context).size.width;
-    var height=MediaQuery.of(context).size.height;
+    var width = MediaQuery.of(context).size.width;
+    var height = MediaQuery.of(context).size.height;
     return Scaffold(
-
-        backgroundColor:Color(0xFF07031E),
+        backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
-
             children: [
-              SizedBox(height: MediaQuery.of(context).size.height/3.5,),
-              Center(child: Align(alignment:Alignment.center,child: Column(
-                children: [
-                  Image.asset('Images/app_icon.png',height: 150,width: 150,),
-                  SizedBox(height:  MediaQuery.of(context).size.height/25,),
-                  Shimmer.fromColors(
-                    baseColor: Colors.grey,
-                    highlightColor: Colors.white,
-                    child: Text("Sport  Club".toUpperCase(),style: GoogleFonts.lato(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 20
-                    )),
-                  ),
-                  SizedBox(height:  MediaQuery.of(context).size.height/25,),
-
-                 Padding(
-                   padding: const EdgeInsets.only(left:140.0,right:140),
-                   child: LinearProgressIndicator(backgroundColor: Colors.white30,
-
-                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                   ),
-                 )
-                ],
-              ))),
-
+              SizedBox(
+                height: MediaQuery.of(context).size.height / 3.5,
+              ),
+              Center(
+                  child: Align(
+                      alignment: Alignment.center,
+                      child: Column(
+                        children: [
+                          CircularProfileAvatar(null,
+                              borderColor: Colors.transparent,
+                              child:Image.asset("Images/l.jpeg"),
+                              elevation: 5,
+                              radius: 40),                             SizedBox(
+                            height: MediaQuery.of(context).size.height / 25,
+                          ),
+                          Shimmer.fromColors(
+                            baseColor: Colors.black,
+                            highlightColor: Colors.blue,
+                            child: Text("AB ESPORTS".toUpperCase(),
+                                style: GoogleFonts.lato(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 20)),
+                          ),
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height / 25,
+                          ),
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(left: 140.0, right: 140),
+                            child: LinearProgressIndicator(
+                              backgroundColor: Colors.white30,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        ],
+                      ))),
             ],
           ),
-        )
-    );
+        ));
   }
 }
-

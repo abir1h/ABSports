@@ -2,12 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_dropdown/flutter_dropdown.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:sports_club/Screens/Appurl/Appurl.dart';
@@ -64,25 +63,19 @@ class _join_matchState extends State<join_match> {
   ];
   String selectedValue = due.first;
 
-  static const Squadg = <String>[
-    "1 player",
-    "2 Player",
-
-    "4 player"
-
-  ];  String selectedValuesquad ;
+  static const Squadg = <String>["1 player", "2 Player", "4 player"];
+  String selectedValuesquad;
   var player_id;
-  func()async{
+  func() async {
     var status = await OneSignal.shared.getPermissionSubscriptionState();
 
     var playerId = status.subscriptionStatus.userId;
     print(playerId);
     setState(() {
-      player_id=playerId;
+      player_id = playerId;
     });
-
-
   }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -92,7 +85,7 @@ class _join_matchState extends State<join_match> {
     // notification_timer=Timer.periodic(Duration(seconds: 10), (_) => slide = emergency());
   }
 
-bool add=false;
+  bool add = false;
   bool joined = false;
   Joinmatch(List player, match_id, int entry) async {
     print(player.toString());
@@ -118,25 +111,48 @@ bool add=false;
     request.send().then((result) async {
       http.Response.fromStream(result).then((response) {
         if (response.statusCode == 200) {
+          var userData = jsonDecode(response.body);
+          if(userData['status_code']==200){
+            setState(() {
+              joined = false;
+            });
+            print(response.body);
+            Fluttertoast.showToast(
+                msg: "Joined the match Successfully.",
+                toastLength: Toast.LENGTH_LONG,
+                gravity: ToastGravity.BOTTOM,
+                timeInSecForIosWeb: 3,
+                backgroundColor: Colors.red,
+                textColor: Colors.white,
+                fontSize: 16.0);
+
+            Navigator.push(
+                context, MaterialPageRoute(builder: (_) => MainHome()));
+          }else{
+            var userData = jsonDecode(response.body);
+            setState(() {
+              joined=false;
+            });
+
+            Fluttertoast.showToast(
+                msg: userData['message'],
+                toastLength: Toast.LENGTH_LONG,
+                gravity: ToastGravity.CENTER,
+                timeInSecForIosWeb: 2,
+                backgroundColor: Colors.red,
+                textColor: Colors.white,
+                fontSize: 16.0);
+
+            Navigator.push(
+                context, MaterialPageRoute(builder: (_) => MainHome()));
+          }
+        }
+        else {
           setState(() {
             joined = false;
           });
           print(response.body);
-          Fluttertoast.showToast(
-              msg: "Joined the match Successfully.",
-              toastLength: Toast.LENGTH_LONG,
-              gravity: ToastGravity.BOTTOM,
-              timeInSecForIosWeb: 3,
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-              fontSize: 16.0);
 
-          Navigator.push(
-              context, MaterialPageRoute(builder: (_) => MainHome()));
-        } else {
-          setState(() {
-            joined = false;
-          });
           print("Fail! ");
           Fluttertoast.showToast(
               msg: "Failed to Join",
@@ -152,38 +168,38 @@ bool add=false;
       });
     });
   }
-var val,val2,val3,val4;
+
+  var val, val2, val3, val4;
   @override
   void dispose() {
     // TODO: implement dispose
     super.dispose();
     player.clear();
     // notification_timer.cancel();
-
   }
-  Timer notification_timer;
 
+  Timer notification_timer;
 
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: Color(0xFF07031E),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor:Color(0xFF07031E),
+        backgroundColor: Colors.white,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios,
-            color: Colors.white,
+            color: Colors.black,
           ),
           onPressed: () {
-           Navigator.pop(context);
+            Navigator.pop(context);
           },
         ),
         title: Text("Join Match",
             style: GoogleFonts.lato(
-                color: Colors.white,
+                color: Colors.black,
                 fontWeight: FontWeight.w700,
                 fontSize: 20)),
       ),
@@ -201,7 +217,7 @@ var val,val2,val3,val4;
                             width: MediaQuery.of(context).size.width,
                             height: MediaQuery.of(context).size.height / 5,
                             child: SpinKitThreeInOut(
-                              color: Colors.white,
+                              color: Colors.black,
                               size: 20,
                             ),
                           );
@@ -217,14 +233,16 @@ var val,val2,val3,val4;
                                         child: Column(
                                           children: [
                                             Padding(
-                                              padding: const EdgeInsets.all(18.0),
+                                              padding:
+                                                  const EdgeInsets.all(18.0),
                                               child: Container(
                                                 height: height / 5,
                                                 width: width / 1,
                                                 decoration: BoxDecoration(
                                                     borderRadius:
-                                                        BorderRadius.circular(10),
-                                                    color: Colors.white),
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    color: Colors.black),
                                                 child: Column(
                                                   children: [
                                                     SizedBox(
@@ -238,11 +256,12 @@ var val,val2,val3,val4;
                                                                 const EdgeInsets
                                                                     .all(8.0),
                                                             child: Text(
-                                                                snapshot.data['game'][
+                                                                snapshot.data[
+                                                                            'game'][
                                                                         'title'] +
                                                                     " | " +
-                                                                    snapshot.data['game']
-                                                                        ['type'] +
+                                                                    snapshot.data['game'][
+                                                                        'type'] +
                                                                     ' | ' +
                                                                     snapshot.data['game'][
                                                                         'control_type'] +
@@ -253,12 +272,11 @@ var val,val2,val3,val4;
                                                                         'game_id'],
                                                                 style: GoogleFonts.lato(
                                                                     color: Colors
-                                                                        .black,
+                                                                        .white,
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .w700,
-                                                                    fontSize:
-                                                                        18)),
+                                                                    fontSize: 18)),
                                                           ),
                                                         )
                                                       ],
@@ -266,40 +284,71 @@ var val,val2,val3,val4;
                                                     Row(
                                                       children: [
                                                         Expanded(
-                                                          child: Text(
-                                                              "  Available Balance : ৳ " +
-                                                                  snapshot.data[
-                                                                          'balance']
-                                                                      .toString(),
-                                                              style: GoogleFonts.lato(
-                                                                  color: Colors
-                                                                      .black,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
-                                                                  fontSize: 16)),
+                                                          child: Row(
+                                                            children: [
+                                                              Text(
+                                                                  "  Available Balance :   " ,
+                                                                  style: GoogleFonts.lato(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w700,
+                                                                      fontSize:
+                                                                          16)),
+                                                              Image.asset('Images/t.png',height: 25,width: 25,),
+                                                              Text(
+
+                                                                      snapshot.data[
+                                                                              'balance']
+                                                                          .toString(),
+                                                                  style: GoogleFonts.lato(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w700,
+                                                                      fontSize:
+                                                                          16)),
+                                                            ],
+                                                          ),
                                                         )
                                                       ],
                                                     ),
                                                     Row(
                                                       children: [
                                                         Expanded(
-                                                          child: Text(
-                                                              "  Match Entry Fee Per Person : ৳ " +
-                                                                  snapshot.data[
-                                                                          'game'][
-                                                                      'entry_fee'],
+                                                          child: Row(
+                                                            children: [
+                                                              Text(
+                                                              "  Match Entry Fee Per Person :  " ,
                                                               style: GoogleFonts.lato(
                                                                   color: Colors
-                                                                      .black,
+                                                                      .white,
                                                                   fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
-                                                                  fontSize: 16)),
+                                                                  FontWeight
+                                                                      .w700,
+                                                                  fontSize:
+                                                                  16)),                                                                        Image.asset('Images/t.png',height: 25,width: 25,),
+                                                              Text(
+                                                              "    " +
+                                                                  snapshot.data[
+                                                                  'game']
+                                                                  [
+                                                                  'entry_fee'],
+                                                              style: GoogleFonts.lato(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontWeight:
+                                                                  FontWeight
+                                                                      .w700,
+                                                                  fontSize:
+                                                                  16)),
+                                                            ],
+                                                          ),
                                                         )
                                                       ],
                                                     ),
-
                                                     Center(
                                                       child: Container(
                                                           height: height / 25,
@@ -308,8 +357,8 @@ var val,val2,val3,val4;
                                                               border: Border.all(
                                                                   color: Colors
                                                                       .black),
-                                                              color:
-                                                                  Colors.orange),
+                                                              color: Colors
+                                                                  .orange),
                                                           child: Center(
                                                             child: Text(
                                                               snapshot.data[
@@ -318,7 +367,7 @@ var val,val2,val3,val4;
                                                                   " spots left",
                                                               style: GoogleFonts.lato(
                                                                   color: Colors
-                                                                      .black,
+                                                                      .white,
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .w700,
@@ -332,13 +381,15 @@ var val,val2,val3,val4;
                                             ),
                                             SizedBox(height: 5),
                                             Padding(
-                                              padding: const EdgeInsets.all(18.0),
+                                              padding:
+                                                  const EdgeInsets.all(18.0),
                                               child: Container(
                                                 width: width / 1,
                                                 decoration: BoxDecoration(
                                                     borderRadius:
-                                                        BorderRadius.circular(10),
-                                                    color: Colors.white),
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    color: Colors.black),
                                                 child: Column(
                                                   children: [
                                                     SizedBox(
@@ -361,10 +412,10 @@ var val,val2,val3,val4;
                                                                         'type'] ==
                                                                     'Solo'
                                                                 ? Text(
-                                                                    "Solo Registration",
+                                                                    "Single Registration",
                                                                     style: GoogleFonts.lato(
                                                                         color: Colors
-                                                                            .white,
+                                                                            .black,
                                                                         fontWeight:
                                                                             FontWeight
                                                                                 .w700,
@@ -378,22 +429,18 @@ var val,val2,val3,val4;
                                                                     ? Text(
                                                                         "Duo Registration",
                                                                         style: GoogleFonts.lato(
-                                                                            color: Colors
-                                                                                .white,
-                                                                            fontWeight: FontWeight
-                                                                                .w700,
-                                                                            fontSize:
-                                                                                14),
+                                                                            color:
+                                                                                Colors.white,
+                                                                            fontWeight: FontWeight.w700,
+                                                                            fontSize: 14),
                                                                       )
                                                                     : Text(
                                                                         "Squad Registration",
                                                                         style: GoogleFonts.lato(
-                                                                            color: Colors
-                                                                                .white,
-                                                                            fontWeight: FontWeight
-                                                                                .w700,
-                                                                            fontSize:
-                                                                                14),
+                                                                            color:
+                                                                                Colors.white,
+                                                                            fontWeight: FontWeight.w700,
+                                                                            fontSize: 14),
                                                                       ),
                                                           )),
                                                     ),
@@ -411,7 +458,7 @@ var val,val2,val3,val4;
                                                               "This is a Solo Match.",
                                                               style: GoogleFonts.lato(
                                                                   color: Colors
-                                                                      .black,
+                                                                      .white,
                                                                   fontWeight:
                                                                       FontWeight
                                                                           .w700,
@@ -425,21 +472,23 @@ var val,val2,val3,val4;
                                                                 "This is a Duo Match.You can Join As Solo or Duo",
                                                                 style: GoogleFonts.lato(
                                                                     color: Colors
-                                                                        .black,
+                                                                        .white,
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .w700,
-                                                                    fontSize: 14),
+                                                                    fontSize:
+                                                                        14),
                                                               )
                                                             : Text(
                                                                 "This is a Squad Match.You can Join As Solo , Duo or Squad",
                                                                 style: GoogleFonts.lato(
                                                                     color: Colors
-                                                                        .black,
+                                                                        .white,
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .w700,
-                                                                    fontSize: 14),
+                                                                    fontSize:
+                                                                        14),
                                                               ),
                                                     Row(
                                                       mainAxisAlignment:
@@ -469,7 +518,7 @@ var val,val2,val3,val4;
                                                         : snapshot.data['game']
                                                                     ['type'] ==
                                                                 'Duo'
-                                                            ?buildRadios()
+                                                            ? buildRadios()
                                                             : buildRadios2(),
                                                     Row(
                                                       children: [
@@ -477,36 +526,31 @@ var val,val2,val3,val4;
                                                           child: Center(
                                                             child: InkWell(
                                                               onTap: () {
-
                                                                 player.add(val);
                                                                 print(player);
                                                               },
                                                               child: Column(
                                                                 children: [
                                                                   Text(
-                                                                      " Enter Exact FreeFire In Game Name",
+                                                                      " Enter Exact  In Game Name",
                                                                       style: GoogleFonts.lato(
                                                                           color: Colors
-                                                                              .black,
-                                                                          fontWeight:
-                                                                              FontWeight
-                                                                                  .w700,
+                                                                              .white,
+                                                                          fontWeight: FontWeight
+                                                                              .w700,
                                                                           fontSize:
                                                                               16)),
                                                                   Padding(
                                                                     padding:
-                                                                        const EdgeInsets
-                                                                                .all(
+                                                                        const EdgeInsets.all(
                                                                             8.0),
                                                                     child: Text(
                                                                         "*** প্রতি জন এর নাম লেখার পর কিবোর্ড এর ইন্টার/ডান ক্লিক করে নেক্সট প্লেয়ারের নাম লিখতে হবে",
                                                                         style: GoogleFonts.lato(
-                                                                            color: Colors
-                                                                                .red,
-                                                                            fontWeight: FontWeight
-                                                                                .w700,
-                                                                            fontSize:
-                                                                                12)),
+                                                                            color:
+                                                                                Colors.red,
+                                                                            fontWeight: FontWeight.w700,
+                                                                            fontSize: 12)),
                                                                   ),
                                                                 ],
                                                               ),
@@ -515,57 +559,86 @@ var val,val2,val3,val4;
                                                         )
                                                       ],
                                                     ),
-                                                    selected_country == '2 Player'
+                                                    selected_country ==
+                                                            '2 Player'
                                                         ? Form(
                                                             key: _formKey,
                                                             child: Padding(
                                                               padding:
                                                                   const EdgeInsets
                                                                       .all(8.0),
-                                                              child: Column(
-                                                                children: [
-                                                                  TextFormField(
-                                                                    controller:
-                                                                        player1,
-                                                                    validator: (v) => v
-                                                                            .isEmpty
-                                                                        ? "Can't be empty"
-                                                                        : null,
-                                                                    decoration: InputDecoration(
-                                                                        border:
-                                                                            OutlineInputBorder(),
-                                                                        hintText:
-                                                                            "Enter player in game name"),
-                                                                    onChanged: (value){
-                                                                      var tr=value;
-                                                                      setState(() {
-                                                                        val=tr;
-                                                                      });
-                                                                    },
-                                                                  ),
-                                                                  SizedBox(
-                                                                    height: 10,
-                                                                  ),
-                                                                  TextFormField(
-                                                                    controller:
-                                                                        player2,
-                                                                    validator: (v) => v
-                                                                            .isEmpty
-                                                                        ? "Can't be empty"
-                                                                        : null,
-                                                                    decoration: InputDecoration(
-                                                                        border:
-                                                                            OutlineInputBorder(),
-                                                                        hintText:
-                                                                            "Enter player in game name"),
-                                                                    onChanged: (value){
-                                                                      var tr=value;
-                                                                      setState(() {
-                                                                        val2=tr;
-                                                                      });
-                                                                    },
-                                                                  ),
-                                                                ],
+                                                              child: Container(
+                                                                color: Colors
+                                                                    .white,
+                                                                child: Column(
+                                                                  children: [
+                                                                    Padding(
+                                                                      padding:
+                                                                          const EdgeInsets.all(
+                                                                              8.0),
+                                                                      child:
+                                                                          TextFormField(
+                                                                            inputFormatters: [
+                                                                              new  FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
+                                                                            ],
+                                                                        controller:
+                                                                            player1,
+                                                                        validator: (v) => v.isEmpty
+                                                                            ? "Can't be empty"
+                                                                            : null,
+                                                                        decoration: InputDecoration(
+                                                                            border:
+                                                                                OutlineInputBorder(),
+                                                                            hintText:
+                                                                                "Enter player in game name"),
+                                                                        onChanged:
+                                                                            (value) {
+                                                                          var tr =
+                                                                              value;
+                                                                          setState(
+                                                                              () {
+                                                                            val =
+                                                                                tr;
+                                                                          });
+                                                                        },
+                                                                      ),
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height:
+                                                                          10,
+                                                                    ),
+                                                                    Padding(
+                                                                      padding:
+                                                                          const EdgeInsets.all(
+                                                                              8.0),
+                                                                      child:
+                                                                          TextFormField(inputFormatters: [
+                                                                            new  FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
+                                                                          ],
+                                                                        controller:
+                                                                            player2,
+                                                                        validator: (v) => v.isEmpty
+                                                                            ? "Can't be empty"
+                                                                            : null,
+                                                                        decoration: InputDecoration(
+                                                                            border:
+                                                                                OutlineInputBorder(),
+                                                                            hintText:
+                                                                                "Enter player in game name"),
+                                                                        onChanged:
+                                                                            (value) {
+                                                                          var tr =
+                                                                              value;
+                                                                          setState(
+                                                                              () {
+                                                                            val2 =
+                                                                                tr;
+                                                                          });
+                                                                        },
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
                                                               ),
                                                             ),
                                                           )
@@ -578,74 +651,94 @@ var val,val2,val3,val4;
                                                                       const EdgeInsets
                                                                               .all(
                                                                           8.0),
-                                                                  child: Column(
-                                                                    children: [
-                                                                      TextFormField(
-                                                                        controller:
-                                                                            player1,
-                                                                        validator: (v) => v
-                                                                                .isEmpty
-                                                                            ? "Can't be empty"
-                                                                            : null,
-                                                                        decoration: InputDecoration(
-                                                                            border:
-                                                                                OutlineInputBorder(),
-                                                                            hintText:
-                                                                                "Enter player in game name"),
-                                                                        onChanged: (value){
-                                                                          var tr=value;
-                                                                          setState(() {
-                                                                            val=tr;
-                                                                          });
-                                                                        },
-                                                                      ),
-                                                                      SizedBox(
-                                                                        height:
-                                                                            10,
-                                                                      ),
-                                                                      TextFormField(
-                                                                        controller:
-                                                                            player2,
-                                                                        validator: (v) => v
-                                                                                .isEmpty
-                                                                            ? "Can't be empty"
-                                                                            : null,
-                                                                        decoration: InputDecoration(
-                                                                            border:
-                                                                                OutlineInputBorder(),
-                                                                            hintText:
-                                                                                "Enter player in game name"),
-                                                                        onChanged: (value){
-                                                                          var tr=value;
-                                                                          setState(() {
-                                                                            val2=tr;
-                                                                          });
-                                                                        },
-                                                                      ),
-                                                                      SizedBox(
-                                                                        height:
-                                                                            10,
-                                                                      ),
-                                                                      TextFormField(
-                                                                        controller:
-                                                                            player3,
-                                                                        validator: (v) => v
-                                                                                .isEmpty
-                                                                            ? "Can't be empty"
-                                                                            : null,
-                                                                        decoration: InputDecoration(
-                                                                            border:
-                                                                                OutlineInputBorder(),
-                                                                            hintText:
-                                                                                "Enter player in game name"),
-                                                                        onChanged: (value){
-                                                                          var tr=value;
-                                                                          setState(() {
-                                                                            val3=tr;
-                                                                          });
-                                                                        },
-                                                                      ),
-                                                                    ],
+                                                                  child:
+                                                                      Container(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    child:
+                                                                        Column(
+                                                                      children: [
+                                                                        Padding(
+                                                                          padding:
+                                                                              const EdgeInsets.all(8.0),
+                                                                          child:
+                                                                              TextFormField(inputFormatters: [
+                                                                                new  FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
+                                                                              ],
+                                                                            controller:
+                                                                                player1,
+                                                                            validator: (v) => v.isEmpty
+                                                                                ? "Can't be empty"
+                                                                                : null,
+                                                                            decoration:
+                                                                                InputDecoration(border: OutlineInputBorder(), hintText: "Enter player in game name"),
+                                                                            onChanged:
+                                                                                (value) {
+                                                                              var tr = value;
+                                                                              setState(() {
+                                                                                val = tr;
+                                                                              });
+                                                                            },
+                                                                          ),
+                                                                        ),
+                                                                        SizedBox(
+                                                                          height:
+                                                                              10,
+                                                                        ),
+                                                                        Padding(
+                                                                          padding:
+                                                                              const EdgeInsets.all(8.0),
+                                                                          child:
+                                                                              TextFormField(
+                                                                                inputFormatters: [
+                                                                                  new  FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
+                                                                                ],
+                                                                            controller:
+                                                                                player2,
+                                                                            validator: (v) => v.isEmpty
+                                                                                ? "Can't be empty"
+                                                                                : null,
+                                                                            decoration:
+                                                                                InputDecoration(border: OutlineInputBorder(), hintText: "Enter player in game name"),
+                                                                            onChanged:
+                                                                                (value) {
+                                                                              var tr = value;
+                                                                              setState(() {
+                                                                                val2 = tr;
+                                                                              });
+                                                                            },
+                                                                          ),
+                                                                        ),
+                                                                        SizedBox(
+                                                                          height:
+                                                                              10,
+                                                                        ),
+                                                                        Padding(
+                                                                          padding:
+                                                                              const EdgeInsets.all(8.0),
+                                                                          child:
+                                                                              TextFormField(
+                                                                                inputFormatters: [
+                                                                                  new  FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
+                                                                                ],
+                                                                            controller:
+                                                                                player3,
+                                                                            validator: (v) => v.isEmpty
+                                                                                ? "Can't be empty"
+                                                                                : null,
+                                                                            decoration:
+                                                                                InputDecoration(border: OutlineInputBorder(), hintText: "Enter player in game name"),
+                                                                            onChanged:
+                                                                                (value) {
+                                                                              var tr = value;
+                                                                              setState(() {
+                                                                                val3 = tr;
+                                                                              });
+                                                                            },
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
                                                                   ),
                                                                 ),
                                                               )
@@ -653,121 +746,138 @@ var val,val2,val3,val4;
                                                                     '4 player'
                                                                 ? Form(
                                                                     key:
-                                                                    _formKey,
+                                                                        _formKey,
                                                                     child:
                                                                         Padding(
                                                                       padding:
                                                                           const EdgeInsets.all(
                                                                               8.0),
                                                                       child:
-                                                                          Column(
-                                                                        children: [
-                                                                          TextFormField(
+                                                                          Container(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        child:
+                                                                            Column(
+                                                                          children: [
+                                                                            Padding(
+                                                                              padding: const EdgeInsets.all(8.0),
+                                                                              child: TextFormField(
+                                                                                inputFormatters: [
+                                                                                  new  FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
+                                                                                ],
+                                                                                controller: player1,
+                                                                                validator: (v) => v.isEmpty ? "Can't be empty" : null,
+                                                                                decoration: InputDecoration(border: OutlineInputBorder(), hintText: "Enter player in game name"),
+                                                                                onChanged: (value) {
+                                                                                  var tr = value;
+                                                                                  setState(() {
+                                                                                    val = tr;
+                                                                                  });
+                                                                                },
+                                                                              ),
+                                                                            ),
+                                                                            SizedBox(
+                                                                              height: 10,
+                                                                            ),
+                                                                            Padding(
+                                                                              padding: const EdgeInsets.all(8.0),
+                                                                              child: TextFormField(
+                                                                                inputFormatters: [
+                                                                                  new  FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
+                                                                                ],
+                                                                                controller: player2,
+                                                                                validator: (v) => v.isEmpty ? "Can't be empty" : null,
+                                                                                decoration: InputDecoration(border: OutlineInputBorder(), hintText: "Enter player in game name"),
+                                                                                onChanged: (value) {
+                                                                                  var tr = value;
+                                                                                  setState(() {
+                                                                                    val2 = tr;
+                                                                                  });
+                                                                                },
+                                                                              ),
+                                                                            ),
+                                                                            SizedBox(
+                                                                              height: 10,
+                                                                            ),
+                                                                            Padding(
+                                                                              padding: const EdgeInsets.all(8.0),
+                                                                              child: TextFormField(
+                                                                                inputFormatters: [
+                                                                                  new  FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
+                                                                                ],
+                                                                                controller: player3,
+                                                                                validator: (v) => v.isEmpty ? "Can't be empty" : null,
+                                                                                decoration: InputDecoration(border: OutlineInputBorder(), hintText: "Enter player in game name"),
+                                                                                onChanged: (value) {
+                                                                                  var tr = value;
+                                                                                  setState(() {
+                                                                                    val3 = tr;
+                                                                                  });
+                                                                                },
+                                                                              ),
+                                                                            ),
+                                                                            SizedBox(
+                                                                              height: 10,
+                                                                            ),
+                                                                            Padding(
+                                                                              padding: const EdgeInsets.all(8.0),
+                                                                              child: TextFormField(
+                                                                                inputFormatters: [
+                                                                                  new  FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
+                                                                                ],
+                                                                                controller: player4,
+                                                                                validator: (v) => v.isEmpty ? "Can't be empty" : null,
+                                                                                decoration: InputDecoration(border: OutlineInputBorder(), hintText: "Enter player in game name"),
+                                                                                onChanged: (value) {
+                                                                                  var tr = value;
+                                                                                  setState(() {
+                                                                                    val4 = tr;
+                                                                                  });
+                                                                                },
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  )
+                                                                : Form(
+                                                                    key:
+                                                                        _formKey,
+                                                                    child:
+                                                                        Padding(
+                                                                      padding:
+                                                                          const EdgeInsets.all(
+                                                                              8.0),
+                                                                      child:
+                                                                          Container(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        child:
+                                                                            Padding(
+                                                                          padding:
+                                                                              const EdgeInsets.all(8.0),
+                                                                          child:
+                                                                              TextFormField(
+                                                                                inputFormatters: [
+                                                                                  new  FilteringTextInputFormatter.allow(RegExp("[0-9a-zA-Z]")),
+                                                                                ],
                                                                             controller:
                                                                                 player1,
                                                                             validator: (v) => v.isEmpty
                                                                                 ? "Can't be empty"
                                                                                 : null,
-                                                                            decoration: InputDecoration(
-                                                                                border: OutlineInputBorder(),
-                                                                                hintText: "Enter player in game name"),
-                                                                            onChanged: (value){
-                                                                              var tr=value;
+                                                                            decoration:
+                                                                                InputDecoration(border: OutlineInputBorder(), hintText: "Enter player in game name"),
+                                                                            onChanged:
+                                                                                (value) {
+                                                                              var tr = value;
                                                                               setState(() {
-                                                                                val=tr;
+                                                                                val = tr;
                                                                               });
                                                                             },
                                                                           ),
-                                                                          SizedBox(
-                                                                            height:
-                                                                                10,
-                                                                          ),
-                                                                          TextFormField(
-                                                                            controller:
-                                                                                player2,
-                                                                            validator: (v) => v.isEmpty
-                                                                                ? "Can't be empty"
-                                                                                : null,
-                                                                            decoration: InputDecoration(
-                                                                                border: OutlineInputBorder(),
-                                                                                hintText: "Enter player in game name"),
-                                                                            onChanged: (value){
-                                                                              var tr=value;
-                                                                              setState(() {
-                                                                                val2=tr;
-                                                                              });
-                                                                            },
-                                                                          ),
-                                                                          SizedBox(
-                                                                            height:
-                                                                                10,
-                                                                          ),
-                                                                          TextFormField(
-                                                                            controller:
-                                                                                player3,
-                                                                            validator: (v) => v.isEmpty
-                                                                                ? "Can't be empty"
-                                                                                : null,
-                                                                            decoration: InputDecoration(
-                                                                                border: OutlineInputBorder(),
-                                                                                hintText: "Enter player in game name"),
-                                                                            onChanged: (value){
-                                                                              var tr=value;
-                                                                              setState(() {
-                                                                                val3=tr;
-                                                                              });
-                                                                            },
-                                                                          ),
-                                                                          SizedBox(
-                                                                            height:
-                                                                                10,
-                                                                          ),
-                                                                          TextFormField(
-                                                                            controller:
-                                                                                player4,
-                                                                            validator: (v) => v.isEmpty
-                                                                                ? "Can't be empty"
-                                                                                : null,
-                                                                            decoration: InputDecoration(
-                                                                                border: OutlineInputBorder(),
-                                                                                hintText: "Enter player in game name"),
-                                                                            onChanged: (value){
-                                                                              var tr=value;
-                                                                              setState(() {
-                                                                                val4=tr;
-                                                                              });
-                                                                            },
-                                                                          ),
-                                                                        ],
-                                                                      ),
-                                                                    ),
-                                                                  )
-                                                                : Form(
-                                                                    key: _formKey,
-                                                                    child:
-                                                                        Padding(
-                                                                      padding:
-                                                                          const EdgeInsets.all(
-                                                                              8.0),
-                                                                      child:
-                                                                          TextFormField(
-                                                                        controller:
-                                                                            player1,
-                                                                        validator: (v) => v
-                                                                                .isEmpty
-                                                                            ? "Can't be empty"
-                                                                            : null,
-                                                                        decoration: InputDecoration(
-                                                                            border:
-                                                                                OutlineInputBorder(),
-                                                                            hintText:
-                                                                                "Enter player in game name"),
-                                                                            onChanged: (value){
-                                                                              var tr=value;
-                                                                              setState(() {
-                                                                                val=tr;
-                                                                              });
-                                                                            },
+                                                                        ),
                                                                       ),
                                                                     ),
                                                                   )
@@ -782,46 +892,62 @@ var val,val2,val3,val4;
                                                     child: Center(
                                                       child: InkWell(
                                                         onTap: () {
-
-                                                          if(add==true){
-                                                            Navigator.push(context, MaterialPageRoute(builder: (_)=>deposite()));
-                                                          }else{
-                                                            if(_formKey.currentState.validate()){
+                                                          if (add == true) {
+                                                            Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                    builder: (_) =>
+                                                                        deposite()));
+                                                          } else {
+                                                            if (_formKey
+                                                                .currentState
+                                                                .validate()) {
                                                               var entry = int.parse(
                                                                   snapshot.data[
-                                                                  'game']
-                                                                  ['entry_fee']);
+                                                                          'game']
+                                                                      [
+                                                                      'entry_fee']);
                                                               var calculate = selected_country ==
-                                                                  '1 player'
+                                                                      '1 player'
                                                                   ? entry
                                                                   : selected_country ==
-                                                                  '2 Player'
-                                                                  ? entry * 2
-                                                                  : selected_country ==
-                                                                  '3 player'
-                                                                  ? entry * 3
-                                                                  :selected_country ==
-                                                                  '4 player'? entry * 4:entry;
+                                                                          '2 Player'
+                                                                      ? entry *
+                                                                          2
+                                                                      : selected_country ==
+                                                                              '3 player'
+                                                                          ? entry *
+                                                                              3
+                                                                          : selected_country == '4 player'
+                                                                              ? entry * 4
+                                                                              : entry;
                                                               print(calculate);
 
                                                               if (snapshot.data[
-                                                              'balance'] >=
+                                                                      'balance'] >=
                                                                   calculate) {
                                                                 setState(() {
                                                                   joined = true;
                                                                 });
-                                                                if(val!=null){
-                                                                  player.add(val);
-
-                                                                } if(val2!=null){
-                                                                  player.add(val2);
-
-                                                                }if(val3!=null){
-                                                                  player.add(val3);
-
-                                                                }if(val4!=null){
-                                                                  player.add(val4);
-
+                                                                if (val !=
+                                                                    null) {
+                                                                  player
+                                                                      .add(val);
+                                                                }
+                                                                if (val2 !=
+                                                                    null) {
+                                                                  player.add(
+                                                                      val2);
+                                                                }
+                                                                if (val3 !=
+                                                                    null) {
+                                                                  player.add(
+                                                                      val3);
+                                                                }
+                                                                if (val4 !=
+                                                                    null) {
+                                                                  player.add(
+                                                                      val4);
                                                                 }
 
                                                                 print(player);
@@ -831,58 +957,65 @@ var val,val2,val3,val4;
                                                                     calculate);
                                                               } else {
                                                                 setState(() {
-                                                                  joined = false;
+                                                                  joined =
+                                                                      false;
                                                                 });
                                                                 setState(() {
                                                                   add = true;
                                                                 });
                                                                 Fluttertoast.showToast(
                                                                     msg:
-                                                                    "You don't have Sufficient Balance",
-                                                                    toastLength: Toast
-                                                                        .LENGTH_LONG,
-                                                                    gravity:
-                                                                    ToastGravity
+                                                                        "You don't have Sufficient Balance",
+                                                                    toastLength:
+                                                                        Toast
+                                                                            .LENGTH_LONG,
+                                                                    gravity: ToastGravity
                                                                         .BOTTOM,
                                                                     timeInSecForIosWeb:
-                                                                    1,
+                                                                        1,
                                                                     backgroundColor:
-                                                                    Colors.red,
+                                                                        Colors
+                                                                            .red,
                                                                     textColor:
-                                                                    Colors.white,
-                                                                    fontSize: 16.0);
+                                                                        Colors
+                                                                            .white,
+                                                                    fontSize:
+                                                                        16.0);
                                                               }
                                                             }
                                                           }
-
                                                         },
                                                         child: Container(
                                                             height: height / 22,
-                                                            width: width,
+                                                            width: width / 2,
                                                             decoration: BoxDecoration(
-                                                                border: Border.all(
-                                                                    color: Colors
-                                                                        .black),
-                                                                color:
-                                                                    Colors.green),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            15),
+                                                                color: Colors
+                                                                    .green),
                                                             child: Center(
                                                               child: Text(
-                                                                add==false?"Join ":" Add "
-                                                                    .toUpperCase(),
+                                                                add == false
+                                                                    ? "Join "
+                                                                    : " Add Money "
+                                                                        .toUpperCase(),
                                                                 style: GoogleFonts.lato(
                                                                     color: Colors
                                                                         .white,
                                                                     fontWeight:
                                                                         FontWeight
                                                                             .w700,
-                                                                    fontSize: 16),
+                                                                    fontSize:
+                                                                        16),
                                                               ),
                                                             )),
                                                       ),
                                                     ),
                                                   )
                                                 : SpinKitThreeInOut(
-                                                    color: Colors.white,
+                                                    color: Colors.black,
                                                     size: 20,
                                                   )
                                           ],
@@ -900,62 +1033,68 @@ var val,val2,val3,val4;
       ),
     );
   }
-  Widget buildRadios() => Row(
-    children: due.map(
-          (value) {
-        final selected = this.selectedValue == value;
 
-        return Expanded(
-          child: RadioListTile<String>(
-              value: value,
-              groupValue: selectedValue,
-              title: Text(
-                value,
-              ),
-              onChanged: (value) {
-                setState(() {
-                  selectedValue = value;
-                  selected_country = value;
-
-                });
-                print(selectedValue);
-              }),
-        );
-      },
-    ).toList(),
-  );
-  Widget buildRadios2() => Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: Squadg.map(
+  Widget buildRadios() => Container(
+        color: Colors.white,
+        child: Row(
+          children: due.map(
             (value) {
-          final selected = this.selectedValuesquad == value;
+              final selected = this.selectedValue == value;
 
-          return Expanded(
-            child: RadioListTile<String>(
-                contentPadding: EdgeInsets.only(left: 0),
-                dense: true,
+              return Expanded(
+                child: RadioListTile<String>(
+                    activeColor: Colors.black,
+                    selectedTileColor: Colors.black,
+                    value: value,
+                    groupValue: selectedValue,
+                    title: Text(
+                      value,
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedValue = value;
+                        selected_country = value;
+                      });
+                      print(selectedValue);
+                    }),
+              );
+            },
+          ).toList(),
+        ),
+      );
+  Widget buildRadios2() => Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          color: Colors.white,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: Squadg.map(
+              (value) {
+                final selected = this.selectedValuesquad == value;
 
-
-                value: value,
-                groupValue: selectedValuesquad,
-                title: Text(
-                  value,style: TextStyle(
-                  fontSize: 10
-                ),
-                ),
-                onChanged: (value) {
-                  setState((){
-                    selectedValuesquad=value;
-                    selected_country = value;
-                  }
-                 );
-                  print(selected_country);
-                }),
-          );
-        },
-      ).toList(),
-    ),
-  );
+                return Expanded(
+                  child: RadioListTile<String>(
+                      contentPadding: EdgeInsets.only(left: 0),
+                      dense: true,
+                      activeColor: Colors.black,
+                      selectedTileColor: Colors.black,
+                      value: value,
+                      groupValue: selectedValuesquad,
+                      title: Text(
+                        value,
+                        style: TextStyle(fontSize: 10),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedValuesquad = value;
+                          selected_country = value;
+                        });
+                        print(selected_country);
+                      }),
+                );
+              },
+            ).toList(),
+          ),
+        ),
+      );
 }

@@ -7,6 +7,7 @@ import 'package:http/http.dart'as http;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sports_club/Screens/Appurl/Appurl.dart';
+
 class withdraw_History extends StatefulWidget {
   @override
   _withdraw_HistoryState createState() => _withdraw_HistoryState();
@@ -43,6 +44,7 @@ class _withdraw_HistoryState extends State<withdraw_History> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
 
         child: Column(
@@ -66,11 +68,15 @@ class _withdraw_HistoryState extends State<withdraw_History> {
                             Text('Error: ${snapshot.error}');
                           } else {
                             return snapshot.hasData
-                                ?                                    Container(
+                                ?         snapshot.data.length>0?                           Container(
+                              height: MediaQuery.of(context).size.height/1.2,
+
                               child: ListView.builder(
                                   shrinkWrap: true,
                                   itemCount: snapshot.data.length,
                                   itemBuilder: (_,index){
+                                    var st=snapshot.data[index]['status']!=null?snapshot.data[index]['status']:0;
+                                    var ac=snapshot.data[index]['active']!=null?snapshot.data[index]['active']:0;
 
                                     return Column(
                                       children: [
@@ -78,11 +84,16 @@ class _withdraw_HistoryState extends State<withdraw_History> {
                                           title: Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text("৳"+snapshot.data[index]['withdraw_money'].toString(),style:  GoogleFonts.lato(
+                                              Row(
+                                                children: [
+                                                  Image.asset('Images/t.png',height: 30,width: 30,),
+                                                  Text("  "+snapshot.data[index]['withdraw_money'].toString(),style:  GoogleFonts.lato(
                                             color: Colors.black,
                                             fontWeight: FontWeight.w600,
                                             fontSize: 16
                                         ),),
+                                                ],
+                                              ),
 
                                             ],
                                           ),
@@ -92,11 +103,11 @@ class _withdraw_HistoryState extends State<withdraw_History> {
                                               Text(DateFormat.yMMMMd('en_US').format(DateTime.parse(snapshot.data[index]['created_at'].toString()),)),
                                             SizedBox(height: 10,)
 
-                                            ,int.parse(snapshot.data[index]['status']!=null?snapshot.data[index]['status']:'0')==1 && int.parse(snapshot.data[index]['active']!=null?snapshot.data[index]['active']:'0')==4?Text("Approved",style:  GoogleFonts.lato(
+                                            ,st==1 && ac==4?Text("Approved",style:  GoogleFonts.lato(
                                                   color: Colors.green,
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 16
-                                              )):int.parse(snapshot.data[index]['status']!=null?snapshot.data[index]['status']:'0')==2?Text("Declined",style:  GoogleFonts.lato(
+                                              )):st==2?Text("Declined",style:  GoogleFonts.lato(
                                                   color: Colors.red,
                                                   fontWeight: FontWeight.w600,
                                                   fontSize: 16
@@ -144,7 +155,17 @@ Divider(color: Colors.black54,)
                                       ],
                                     );
                                   }),
-                            )
+                            ):Center(child: Column(
+                              children: [
+                                SizedBox(height: MediaQuery.of(context).size.height/5,),
+                                Image.asset('Images/em.gif',height: MediaQuery.of(context).size.height/4,),
+                                Text("No Transaction Found!! " ,style:  GoogleFonts.lato(
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16
+                                )),SizedBox(height: 10,),
+                              ],
+                            ))
 
 
 

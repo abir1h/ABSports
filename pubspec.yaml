@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+1
+version: 28.0.0+9
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -44,6 +44,8 @@ dependencies:
   url_launcher: ^6.0.4
   carousel_slider: ^4.0.0
   fluttertoast: ^8.0.3
+  curved_navigation_bar: ^1.0.1
+  modal_bottom_sheet: ^2.0.0
   http: ^0.13.3
   intl: ^0.17.0
   pull_to_refresh: ^2.0.0
@@ -51,6 +53,19 @@ dependencies:
   flutter_dropdown: ^0.0.8
   font_awesome_flutter: ^9.2.0
   device_info: ^2.0.3
+  ota_update: ^4.0.1
+  youtube_player_flutter: ^8.0.0
+  miniplayer: ^1.0.1
+  flutter_scroll_to_top: ^2.1.1
+  package_info: ^2.0.2
+  bottom_bar_page_transition: ^2.0.0
+  marquee: ^2.2.1
+
+
+  pip_view: ^0.9.5
+
+
+
 
 
 
@@ -64,7 +79,7 @@ dev_dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "Images/app_icon.png"
+  image_path: "Images/l.jpeg"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -80,29 +95,38 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - Images/logo.png
-    - Images/i1.jpg
-    - Images/i2.jpg
-    - Images/i3.jpg
-    - Images/app_icon.png
     - Images/freefire.jpg
-    - Images/i4.jpg
     - Images/g.gif
+    - Images/inter.gif
     - Images/un.gif
     - Images/diamond.png
+    - Images/lg2.png
     - Images/OTP Image.svg
+    - Images/rq.jpg
+    - Images/pr.png
     - Images/wallet.png
+    - Images/logo1.png
+    - Images/p1.jpg
+    - Images/dety.jpeg
+    - Images/gt.gif
+    - Images/l.jpg
+    - Images/t.png
+    - Images/r.jpeg
+    - Images/p2.jpg
     - Images/bkas.png
     - Images/rocket.png
     - Images/nagad.jpg
     - Images/money.png
     - Images/splash_logo.jpg
-    - Images/g_bo.jpg
     - Images/result_.jpg
+    - Images/bgss.png
     - Images/wal.png
+    - Images/i.png
     - Images/telegram.png
     - Images/store.jpg
     - Images/w.jpg
-    - Images/bgss.png
+    - Images/messenger.png
+    - Images/em.gif
     - Images/frr.jpg
     - Images/undraw_my_password_d6kg.svg
     - Images/ref.jpg
@@ -111,6 +135,17 @@ flutter:
     - Images/cs_freefire.jpg
     - Images/CS_Tournament.jpg
     - Images/csfreee.jpg
+    - Images/app_icon.png
+    - Images/p.png
+    - Images/y.png
+    - Images/d.png
+    - Images/w.png
+    - Images/did.png
+    - Images/cs.jpeg
+    - Images/l.jpeg
+    - Images/c.jpeg
+    - Images/br.jpeg
+    - Images/pi.jpeg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
